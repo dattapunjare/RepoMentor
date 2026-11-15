@@ -1,4 +1,4 @@
-
+import streamlit as st
 from github_service import (
     parse_github_url,
     get_repository_info,
@@ -299,3 +299,88 @@ if "repo_info" in st.session_state:
             st.markdown(
                 st.session_state["ai_explanation"]
             )
+# -----------------------------------
+# REPOSITORY-WIDE ARCHITECTURE ANALYSIS
+# -----------------------------------
+
+st.divider()
+
+st.header("🏗️ Repository-Wide Architecture Analysis")
+
+st.write(
+    "Analyze all Python files in the repository "
+    "to understand its overall code structure."
+)
+
+if st.button("Analyze Entire Repository"):
+
+    with st.spinner(
+        "Fetching and analyzing Python files..."
+    ):
+
+        python_files = get_all_python_files(
+            owner,
+            repo,
+            repo_files
+        )
+
+        if not python_files:
+
+            st.warning(
+                "No Python files found or files could not be fetched."
+            )
+
+        else:
+
+            repository_analysis = analyze_repository(
+                python_files
+            )
+
+            st.session_state["repository_analysis"] = repository_analysis
+            st.session_state["python_file_count"] = len(python_files)
+
+
+if "repository_analysis" in st.session_state:
+
+    repository_analysis = st.session_state["repository_analysis"]
+
+    st.success("Repository analysis completed!")
+
+    st.metric(
+        "🐍 Python Files Analyzed",
+        st.session_state["python_file_count"]
+    )
+
+    total_imports = 0
+    total_functions = 0
+    total_classes = 0
+
+    for analysis in repository_analysis.values():
+
+        if "error" not in analysis:
+
+            total_imports += len(analysis["imports"])
+            total_functions += len(analysis["functions"])
+            total_classes += len(analysis["classes"])
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("📦 Total Imports", total_imports)
+    col2.metric("⚙️ Total Functions", total_functions)
+    col3.metric("🏛️ Total Classes", total_classes)
+
+    st.subheader("📁 File-wise Architecture")
+
+    for file_path, analysis in repository_analysis.items():
+
+        with st.expander(file_path):
+
+            if "error" in analysis:
+
+                st.error(analysis["error"])
+
+            else:
+
+                st.write("**Imports:**", analysis["imports"])
+                st.write("**Functions:**", analysis["functions"])
+                st.write("**Classes:**", analysis["classes"])
