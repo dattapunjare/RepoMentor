@@ -1,16 +1,17 @@
 
-import streamlit as st
-
 from github_service import (
     parse_github_url,
     get_repository_info,
     get_repository_files,
-    get_file_content
+    get_file_content,
+    get_all_python_files
 )
 
 from ai_service import explain_code
-from architecture_analyzer import analyze_python_file
-
+from architecture_analyzer import (
+    analyze_python_file,
+    analyze_repository
+)
 
 # -----------------------------------
 # PAGE CONFIGURATION

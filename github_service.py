@@ -75,3 +75,33 @@ def get_file_content(owner, repo, file_path):
             return content
 
     return None
+def get_all_python_files(owner, repo, file_tree):
+    """
+    Fetch source code from all Python files in a repository.
+
+    Returns a dictionary:
+    {
+        "app.py": "source code...",
+        "utils/helper.py": "source code..."
+    }
+    """
+
+    python_files = {}
+
+    for file in file_tree:
+
+        file_path = file.get("path", "")
+
+        # Only process Python files
+        if file_path.endswith(".py"):
+
+            content = get_file_content(
+                owner,
+                repo,
+                file_path
+            )
+
+            if content is not None:
+                python_files[file_path] = content
+
+    return python_files
