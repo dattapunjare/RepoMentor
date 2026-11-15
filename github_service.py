@@ -48,3 +48,30 @@ def get_repository_files(owner, repo):
         return response.json().get("tree", [])
 
     return None
+
+
+def get_file_content(owner, repo, file_path):
+    """
+    Fetch the source code of a file from GitHub.
+    """
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repo}/contents/{file_path}"
+    )
+
+    response = requests.get(url, timeout=15)
+
+    if response.status_code == 200:
+        data = response.json()
+
+        if data.get("type") == "file":
+            import base64
+
+            content = base64.b64decode(
+                data["content"]
+            ).decode("utf-8", errors="replace")
+
+            return content
+
+    return None
