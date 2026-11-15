@@ -9,7 +9,12 @@ from github_service import (
 )
 
 from ai_service import explain_code
+from architecture_analyzer import analyze_python_file
 
+
+# -----------------------------------
+# PAGE CONFIGURATION
+# -----------------------------------
 
 st.set_page_config(
     page_title="RepoMentor",
@@ -26,6 +31,11 @@ st.write(
 )
 
 st.divider()
+
+
+# -----------------------------------
+# GITHUB REPOSITORY INPUT
+# -----------------------------------
 
 repo_url = st.text_input(
     "Enter GitHub Repository URL",
@@ -45,6 +55,7 @@ if st.button("Analyze Repository", type="primary"):
 
         else:
             with st.spinner("Fetching repository information..."):
+
                 repo_info = get_repository_info(owner, repo)
                 repo_files = get_repository_files(owner, repo)
 
@@ -57,10 +68,16 @@ if st.button("Analyze Repository", type="primary"):
                 st.session_state["repo_info"] = repo_info
                 st.session_state["repo_files"] = repo_files
 
-                # Clear previous file and AI results
+                # Clear previous analysis results
                 st.session_state.pop("file_content", None)
+                st.session_state.pop("selected_file", None)
                 st.session_state.pop("ai_explanation", None)
+                st.session_state.pop("architecture", None)
 
+
+# -----------------------------------
+# REPOSITORY INFORMATION
+# -----------------------------------
 
 if "repo_info" in st.session_state:
 
@@ -80,25 +97,46 @@ if "repo_info" in st.session_state:
 
     col1, col2, col3 = st.columns(3)
 
-    col1.metric("⭐ Stars", repo_info.get("stargazers_count", 0))
-    col2.metric("🍴 Forks", repo_info.get("forks_count", 0))
-    col3.metric("🐛 Open Issues", repo_info.get("open_issues_count", 0))
+    col1.metric(
+        "⭐ Stars",
+        repo_info.get("stargazers_count", 0)
+    )
+
+    col2.metric(
+        "🍴 Forks",
+        repo_info.get("forks_count", 0)
+    )
+
+    col3.metric(
+        "🐛 Open Issues",
+        repo_info.get("open_issues_count", 0)
+    )
 
     st.write(
         "**Programming Language:**",
         repo_info.get("language") or "Not specified"
     )
 
-    st.write("**Repository URL:**", repo_info.get("html_url"))
+    st.write(
+        "**Repository URL:**",
+        repo_info.get("html_url")
+    )
 
     st.divider()
+
+
+    # -----------------------------------
+    # REPOSITORY EXPLORER
+    # -----------------------------------
 
     st.header("📁 Repository Explorer")
 
     if repo_files is None:
+
         st.error("Could not fetch repository files.")
 
     else:
+
         file_items = [
             item for item in repo_files
             if item.get("type") == "blob"
@@ -127,21 +165,35 @@ if "repo_info" in st.session_state:
             if st.button("View Source Code"):
 
                 with st.spinner("Loading file content..."):
+
                     content = get_file_content(
-                        owner, repo, selected_file
+                        owner,
+                        repo,
+                        selected_file
                     )
 
                 if content is not None:
+
                     st.session_state["file_content"] = content
                     st.session_state["selected_file"] = selected_file
+
+                    # Clear previous analysis results
                     st.session_state.pop("ai_explanation", None)
+                    st.session_state.pop("architecture", None)
+
                 else:
+
                     st.error("Could not load this file.")
 
         else:
+
             st.info("No matching files found.")
 
-    # Display selected source code
+
+    # -----------------------------------
+    # SELECTED SOURCE CODE
+    # -----------------------------------
+
     if "file_content" in st.session_state:
 
         st.divider()
@@ -151,12 +203,82 @@ if "repo_info" in st.session_state:
         )
 
         st.code(
-            st.session_state["file_content"],
-            language="python"
-        )
+    st.session_state["file_content"],
+    language="python",
+    height=600
+)
 
-        # AI explanation
+
+        # -----------------------------------
+        # ARCHITECTURE ANALYSIS
+        # -----------------------------------
+
         st.divider()
+
+        st.subheader("🏗️ Python Architecture Analysis")
+
+        if st.button("Analyze Code Structure"):
+
+            with st.spinner("Analyzing code structure..."):
+
+                architecture = analyze_python_file(
+                    st.session_state["file_content"]
+                )
+
+                st.session_state["architecture"] = architecture
+
+        if "architecture" in st.session_state:
+
+            architecture = st.session_state["architecture"]
+
+            if "error" in architecture:
+
+                st.error(architecture["error"])
+
+            else:
+
+                col1, col2, col3 = st.columns(3)
+
+                col1.metric(
+                    "📦 Imports",
+                    len(architecture["imports"])
+                )
+
+                col2.metric(
+                    "⚙️ Functions",
+                    len(architecture["functions"])
+                )
+
+                col3.metric(
+                    "🏛️ Classes",
+                    len(architecture["classes"])
+                )
+
+                st.write("**Imports**")
+                st.write(
+                    architecture["imports"]
+                    or "No imports found."
+                )
+
+                st.write("**Functions**")
+                st.write(
+                    architecture["functions"]
+                    or "No functions found."
+                )
+
+                st.write("**Classes**")
+                st.write(
+                    architecture["classes"]
+                    or "No classes found."
+                )
+
+
+        # -----------------------------------
+        # AI CODE EXPLANATION
+        # -----------------------------------
+
+        st.divider()
+
         st.subheader("🤖 AI Code Explanation")
 
         if st.button("Explain Code with Qwen AI"):
@@ -164,6 +286,7 @@ if "repo_info" in st.session_state:
             with st.spinner(
                 "Qwen is analyzing your source code..."
             ):
+
                 explanation = explain_code(
                     st.session_state["file_content"]
                 )
@@ -171,4 +294,7 @@ if "repo_info" in st.session_state:
                 st.session_state["ai_explanation"] = explanation
 
         if "ai_explanation" in st.session_state:
-            st.markdown(st.session_state["ai_explanation"])
+
+            st.markdown(
+                st.session_state["ai_explanation"]
+            )
