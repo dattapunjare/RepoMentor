@@ -1,4 +1,4 @@
-# 📂 RepoMentor
+#  RepoMentor
 ### AI-Powered GitHub Repository Intelligence Platform
 
 RepoMentor is an AI-powered platform designed to help developers and students understand, explore, and analyze GitHub repositories.
@@ -9,7 +9,7 @@ The goal of RepoMentor is to make understanding unfamiliar codebases easier, fas
 
 ---
 
-## 🚀 Features
+##  Features
 
 ### 1. GitHub Repository Explorer
 - Enter a public GitHub repository URL.
@@ -46,7 +46,7 @@ Extract:
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 | Technology | Purpose |
 |---|---|
@@ -61,7 +61,7 @@ Extract:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```text
 RepoMentor/
@@ -90,7 +90,7 @@ RepoMentor/
 
 ---
 
-## ⚙️ Installation and Setup
+##  Installation and Setup
 
 ### Prerequisites
 
@@ -164,7 +164,7 @@ http://localhost:8501
 
 ---
 
-## 🧪 Example Usage
+##  Example Usage
 
 1. Open RepoMentor in your browser.
 2. Enter a public GitHub repository URL.
@@ -184,7 +184,7 @@ https://github.com/psf/requests
 
 ---
 
-## 🔍 Current Project Status
+##  Current Project Status
 
 **Implemented Features**
 
@@ -206,7 +206,7 @@ https://github.com/psf/requests
 
 ---
 
-## ⚠️ Current Limitations
+##  Current Limitations
 
 - Currently supports public GitHub repositories.
 - Architecture analysis focuses on Python files.
@@ -217,7 +217,7 @@ https://github.com/psf/requests
 
 ---
 
-## 🎯 Project Objective
+##  Project Objective
 
 RepoMentor aims to go beyond basic GitHub repository browsing by combining static code analysis and local large language models to help users understand unfamiliar software projects.
 
